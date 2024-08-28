@@ -16,15 +16,15 @@ pipeline {
             }
             post {
                 success {
-                    emailext subject: "Unit and Integration Tests Passed",
-                             body: "The Unit and Integration Tests stage passed successfully.",
-                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                             attachLog: true
+                    mail to: "jamesrobschwab@gmail.com",
+                    subject: "Unit and Integration Tests Passed",
+                    body: "The Unit and Integration Tests stage passed successfully.",
+                    attachLog: true
                 }
                 failure {
-                    emailext subject: "Unit and Integration Tests Failed",
+                    mail to: "jamesrobschwab@gmail.com",
+                    subject: "Unit and Integration Tests Failed",
                              body: "The Unit and Integration Tests stage failed. Please check the logs.",
-                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
                              attachLog: true
                 }
             }
@@ -42,15 +42,15 @@ pipeline {
             }
             post {
                 success {
-                    emailext subject: "Security Scan Passed",
+                    mail to: "jamesrobschwab@gmail.com",
+                    subject: "Security Scan Passed",
                              body: "The Security Scan stage passed successfully.",
-                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
                              attachLog: true
                 }
                 failure {
-                    emailext subject: "Security Scan Failed",
+                    mail to: "jamesrobschwab@gmail.com",
+                    subject: "Security Scan Failed",
                              body: "The Security Scan stage failed. Please check the logs.",
-                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
                              attachLog: true
                 }
             }
