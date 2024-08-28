@@ -14,6 +14,20 @@ pipeline {
                 echo 'Running Integration Tests using TestNG...'
                 // Example: JUnit and TestNG would be used here for testing
             }
+            post {
+                success {
+                    emailext subject: "Unit and Integration Tests Passed",
+                             body: "The Unit and Integration Tests stage passed successfully.",
+                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                             attachLog: true
+                }
+                failure {
+                    emailext subject: "Unit and Integration Tests Failed",
+                             body: "The Unit and Integration Tests stage failed. Please check the logs.",
+                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                             attachLog: true
+                }
+            }
         }
         stage('Code Analysis') {
             steps {
@@ -25,6 +39,20 @@ pipeline {
             steps {
                 echo 'Performing Security Scan using OWASP Dependency-Check...'
                 // Example: OWASP Dependency-Check would be used for security scanning
+            }
+            post {
+                success {
+                    emailext subject: "Security Scan Passed",
+                             body: "The Security Scan stage passed successfully.",
+                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                             attachLog: true
+                }
+                failure {
+                    emailext subject: "Security Scan Failed",
+                             body: "The Security Scan stage failed. Please check the logs.",
+                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                             attachLog: true
+                }
             }
         }
         stage('Deploy to Staging') {
@@ -50,40 +78,6 @@ pipeline {
     post {
         always {
             echo 'Pipeline completed.'
-        }
-        // Send email at the end of Unit and Integration Tests stage
-        stage('Unit and Integration Tests') {
-            post {
-                success {
-                    emailext subject: "Unit and Integration Tests Passed",
-                             body: "The Unit and Integration Tests stage passed successfully.",
-                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                             attachLog: true
-                }
-                failure {
-                    emailext subject: "Unit and Integration Tests Failed",
-                             body: "The Unit and Integration Tests stage failed. Please check the logs.",
-                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                             attachLog: true
-                }
-            }
-        }
-        // Send email at the end of Security Scan stage
-        stage('Security Scan') {
-            post {
-                success {
-                    emailext subject: "Security Scan Passed",
-                             body: "The Security Scan stage passed successfully.",
-                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                             attachLog: true
-                }
-                failure {
-                    emailext subject: "Security Scan Failed",
-                             body: "The Security Scan stage failed. Please check the logs.",
-                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                             attachLog: true
-                }
-            }
         }
     }
 }
