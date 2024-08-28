@@ -1,50 +1,57 @@
 pipeline {
     agent any
 
-    environment {
-        DIRECTORY_PATH = "C:/Users/james/OneDrive/Documents/SIT753/code.js"
-        TESTING_ENVIRONMENT = 'UAT_NONPROD'
-        PRODUCTION_ENVIRONMENT = 'James Schwab'
-    }
-
     stages {
         stage('Build') {
             steps {
-                echo "Fetch the source code from the directory path specified by the environment variable: ${env.DIRECTORY_PATH}"
-                echo "Compile the code and generate any necessary artifacts"
+                echo 'Building the application...'
+                sh 'mvn clean install'
             }
         }
-
-        stage('Test') {
+        stage('Unit and Integration Tests') {
             steps {
-                echo "Unit tests"
-                echo "Integration tests"
+                echo 'Running Unit and Integration Tests...'
+                sh 'mvn test'
             }
         }
-
-        stage('Code Quality Check') {
+        stage('Code Analysis') {
             steps {
-                echo "Check the quality of the code"
+                echo 'Running Code Analysis...'
+                sh 'mvn sonar:sonar'
             }
         }
-
-        stage('Deploy') {
+        stage('Security Scan') {
             steps {
-                echo "Deploy the application to a testing environment specified by the environment variable: ${env.TESTING_ENVIRONMENT}"
+                echo 'Performing Security Scan...'
+                sh 'dependency-check.sh --scan . --format XML'
             }
         }
-
-        stage('Approval') {
+        stage('Deploy to Staging') {
             steps {
-                echo "Waiting for manual approval..."
-                sleep 10
+                echo 'Deploying to Staging...'
+                sh 'aws deploy start-deployment --application-name MyApp --deployment-group Staging'
             }
         }
-
+        stage('Integration Tests on Staging') {
+            steps {
+                echo 'Running Integration Tests on Staging...'
+                sh 'mvn verify -Denv=staging'
+            }
+        }
         stage('Deploy to Production') {
             steps {
-                echo "Deploy the code to the production environment: ${env.PRODUCTION_ENVIRONMENT}"
+                echo 'Deploying to Production...'
+                sh 'aws deploy start-deployment --application-name MyApp --deployment-group Production'
             }
+        }
+    }
+
+    post {
+        always {
+            emailext subject: "Pipeline ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                     body: "Build URL: ${env.BUILD_URL}",
+                     recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                     attachLog: true
         }
     }
 }
